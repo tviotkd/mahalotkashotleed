@@ -334,7 +334,7 @@
     <p>התעריפים במחולל הם הערכה ממוצעת בלבד. השאירו פרטים ונחזור אליכם עם הצעת מחיר מדויקת מותאמת אישית מול כל החברות.</p>
     <form class="lead-form" id="leadForm">
       <input type="text" name="name" placeholder="שם מלא" required>
-      <input type="tel" name="phone" placeholder="טלפון" required pattern="[0-9\-+ ]{9,15}">
+      <input type="tel" name="phone" placeholder="טלפון (9 ספרות)" required pattern="[0-9]{9}" maxlength="9" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,9)">
       <input type="email" name="email" placeholder="דוא״ל (לא חובה)">
       <button type="submit">השאירו פרטים לבדיקה אישית</button>
       <div class="lead-msg" id="leadMsg"></div>
@@ -531,6 +531,13 @@ document.getElementById('leadForm').addEventListener('submit', async (e)=>{
   const name = form.name.value.trim();
   const phone = form.phone.value.trim();
   const email = form.email.value.trim();
+  const pageUrl = window.location.href;
+
+  if(!/^[0-9]{9}$/.test(phone)){
+    msg.textContent = 'נא להזין מספר טלפון בן 9 ספרות בדיוק.';
+    msg.className = 'lead-msg show err';
+    return;
+  }
 
   const fd = new FormData();
   fd.append('access_key','3196d164-1737-4d2b-b915-475e7d224172');
@@ -539,6 +546,7 @@ document.getElementById('leadForm').addEventListener('submit', async (e)=>{
   fd.append('phone', phone);
   fd.append('email', email || 'לא צויין');
   fd.append('from_name','תעריפון מחלות קשות — קפלן דהאן');
+  fd.append('page_source', pageUrl);
 
   try{
     const res = await fetch('https://api.web3forms.com/submit',{method:'POST',body:fd});
@@ -551,7 +559,7 @@ document.getElementById('leadForm').addEventListener('submit', async (e)=>{
       throw new Error('submit failed');
     }
   } catch(err){
-    window.location.href = `mailto:office2@kd-ins.co.il?subject=ליד חדש - תעריפון מחלות קשות&body=שם: ${encodeURIComponent(name)}%0Aטלפון: ${encodeURIComponent(phone)}%0Aדוא"ל: ${encodeURIComponent(email)}`;
+    window.location.href = `mailto:office2@kd-ins.co.il?subject=ליד חדש - תעריפון מחלות קשות&body=שם: ${encodeURIComponent(name)}%0Aטלפון: ${encodeURIComponent(phone)}%0Aדוא"ל: ${encodeURIComponent(email)}%0Aמקור (דף נחיתה): ${encodeURIComponent(pageUrl)}`;
     msg.textContent = 'נפתחה תוכנת המייל לשליחה ידנית.';
     msg.className = 'lead-msg show err';
   }
