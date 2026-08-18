@@ -82,6 +82,13 @@
     background:#fbfaf7;
   }
   .field input[type=number]:focus{outline:2px solid var(--blue);outline-offset:1px;}
+  .field input[type=range]{
+    width:100%;
+    accent-color:var(--gold);
+    height:6px;
+    cursor:pointer;
+  }
+  .field label span{color:var(--navy);font-weight:800;}
   .seg{
     display:flex;
     gap:8px;
@@ -276,7 +283,7 @@
 
     <div class="field">
       <label for="age">גיל</label>
-      <input type="number" id="age" min="18" max="74" value="40">
+      <input type="number" id="age" min="0" max="74" value="40">
     </div>
 
     <div class="field">
@@ -296,8 +303,8 @@
     </div>
 
     <div class="field">
-      <label for="coverage">סכום ביטוח (₪)</label>
-      <input type="number" id="coverage" min="10000" step="10000" value="100000">
+      <label for="coverage">סכום ביטוח: <span id="coverageVal">100,000</span> ₪</label>
+      <input type="range" id="coverage" min="100000" max="600000" step="10000" value="100000">
     </div>
 
     <button class="calc-btn" id="calcBtn">חשב פרמיה</button>
@@ -308,15 +315,9 @@
     <div class="card">
       <h2>תוצאה</h2>
 
-      <div class="avg-box">
-        <div class="lbl">פרמיה חודשית ממוצעת</div>
-        <div class="num" id="avgNoDiscount">—</div>
-        <div class="sub" id="companyCount"></div>
-      </div>
-
       <div class="discount-row">
         <div class="dbox on" style="flex:1;">
-          <div class="t">מחיר חודשי</div>
+          <div class="t">מחיר לחודש לסכום ביטוח של <span id="coverageLabel">100,000 ₪</span></div>
           <div class="v" id="discMonthly">—</div>
         </div>
       </div>
@@ -485,6 +486,9 @@ document.getElementById('smokerSeg').addEventListener('click',e=>{
   e.target.classList.add('active');
   smoker=e.target.dataset.val;
 });
+document.getElementById('coverage').addEventListener('input',e=>{
+  document.getElementById('coverageVal').textContent = Number(e.target.value).toLocaleString('he-IL');
+});
 
 function fmt(n){
   return '₪' + n.toLocaleString('he-IL',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -495,9 +499,8 @@ function fmtInt(n){
 
 document.getElementById('calcBtn').addEventListener('click',()=>{
   const age = parseInt(document.getElementById('age').value,10);
-  const coverage = parseFloat(document.getElementById('coverage').value)||100000;
-  if(!age || age<18 || age>74){
-    alert('נא להזין גיל תקין בין 18 ל־74');
+  if(isNaN(age) || age<0 || age>74){
+    alert('נא להזין גיל תקין בין 0 ל־74');
     return;
   }
 
@@ -510,12 +513,12 @@ document.getElementById('calcBtn').addEventListener('click',()=>{
 
   const active = companies.filter(c=>c.val!==null && c.val!==undefined);
   const avgPer100k = active.reduce((s,c)=>s+c.val,0)/active.length;
+  const coverage = parseFloat(document.getElementById('coverage').value)||100000;
   const factor = coverage/100000;
   const finalMonthly = avgPer100k*factor*0.75;
 
-  document.getElementById('avgNoDiscount').textContent = fmt(avgPer100k)+' / חודש ל־100,000 ₪';
-  document.getElementById('companyCount').textContent = '';
   document.getElementById('discMonthly').textContent = fmtInt(finalMonthly);
+  document.getElementById('coverageLabel').textContent = Number(coverage).toLocaleString('he-IL')+' ₪';
 
   document.getElementById('results').classList.remove('result-hidden');
   document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
