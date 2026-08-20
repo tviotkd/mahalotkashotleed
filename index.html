@@ -539,27 +539,34 @@ document.getElementById('leadForm').addEventListener('submit', async (e)=>{
     return;
   }
 
-  const fd = new FormData();
-  fd.append('access_key','92daea8c-f8e9-4eeb-8b70-b39267acbe9e');
-  fd.append('subject','ליד חדש — תעריפון מחלות קשות');
-  fd.append('name', name);
-  fd.append('phone', phone);
-  fd.append('email', email || 'לא צויין');
-  fd.append('from_name','תעריפון מחלות קשות — קפלן דהאן');
-  fd.append('page_source', pageUrl);
-  fd.append('message', `שם: ${name}\nטלפון: ${phone}\nדוא"ל: ${email || 'לא צויין'}\nמקור (דף נחיתה): ${pageUrl}`);
+  const payload = {
+    access_key: '92daea8c-f8e9-4eeb-8b70-b39267acbe9e',
+    subject: 'ליד חדש — תעריפון מחלות קשות',
+    from_name: 'תעריפון מחלות קשות — קפלן דהאן',
+    name: name,
+    phone: phone,
+    message: `שם: ${name}\nטלפון: ${phone}\nדוא"ל: ${email || 'לא צויין'}\nמקור (דף נחיתה): ${pageUrl}`
+  };
+  if(email) payload.email = email; // only send a real email if one was entered — an invalid placeholder can get silently rejected
 
   try{
-    const res = await fetch('https://api.web3forms.com/submit',{method:'POST',body:fd});
+    const res = await fetch('https://api.web3forms.com/submit',{
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Accept':'application/json' },
+      body: JSON.stringify(payload)
+    });
     const data = await res.json();
     if(data.success){
       msg.textContent = 'תודה! הפרטים נשלחו, נציגנו יחזרו אליכם בהקדם.';
       msg.className = 'lead-msg show ok';
       form.reset();
     } else {
-      throw new Error('submit failed');
+      console.error('Web3Forms error:', data);
+      msg.textContent = 'השליחה נכשלה (' + (data.message || 'שגיאה לא ידועה') + '). נסו שוב או צרו קשר טלפונית.';
+      msg.className = 'lead-msg show err';
     }
   } catch(err){
+    console.error('Web3Forms network error:', err);
     window.location.href = `mailto:office2@kd-ins.co.il?subject=ליד חדש - תעריפון מחלות קשות&body=שם: ${encodeURIComponent(name)}%0Aטלפון: ${encodeURIComponent(phone)}%0Aדוא"ל: ${encodeURIComponent(email)}%0Aמקור (דף נחיתה): ${encodeURIComponent(pageUrl)}`;
     msg.textContent = 'נפתחה תוכנת המייל לשליחה ידנית.';
     msg.className = 'lead-msg show err';
