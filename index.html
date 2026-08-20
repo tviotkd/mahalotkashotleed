@@ -547,6 +547,7 @@ document.getElementById('leadForm').addEventListener('submit', async (e)=>{
   fd.append('email', email || 'לא צויין');
   fd.append('from_name','תעריפון מחלות קשות — קפלן דהאן');
   fd.append('page_source', pageUrl);
+  fd.append('message', `שם: ${name}\nטלפון: ${phone}\nדוא"ל: ${email || 'לא צויין'}\nמקור (דף נחיתה): ${pageUrl}`);
 
   try{
     const res = await fetch('https://api.web3forms.com/submit',{method:'POST',body:fd});
