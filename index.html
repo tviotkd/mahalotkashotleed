@@ -334,7 +334,7 @@
     <p>התעריפים במחולל הם הערכה ממוצעת בלבד. השאירו פרטים ונחזור אליכם עם הצעת מחיר מדויקת מותאמת אישית מול כל החברות.</p>
     <form class="lead-form" id="leadForm">
       <input type="text" name="name" placeholder="שם מלא" required>
-      <input type="tel" name="phone" placeholder="טלפון (9 ספרות)" required pattern="[0-9]{9}" maxlength="9" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,9)">
+      <input type="tel" name="phone" placeholder="טלפון (10 ספרות)" required pattern="[0-9]{10}" maxlength="10" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)">
       <input type="email" name="email" placeholder="דוא״ל (לא חובה)">
       <button type="submit">השאירו פרטים לבדיקה אישית</button>
       <div class="lead-msg" id="leadMsg"></div>
@@ -533,8 +533,8 @@ document.getElementById('leadForm').addEventListener('submit', async (e)=>{
   const email = form.email.value.trim();
   const pageUrl = window.location.href;
 
-  if(!/^[0-9]{9}$/.test(phone)){
-    msg.textContent = 'נא להזין מספר טלפון בן 9 ספרות בדיוק.';
+  if(!/^[0-9]{10}$/.test(phone)){
+    msg.textContent = 'נא להזין מספר טלפון בן 10 ספרות בדיוק.';
     msg.className = 'lead-msg show err';
     return;
   }
